@@ -1,31 +1,123 @@
 import { motion } from "motion/react";
-import { 
-  ReactIcon, 
-  NextjsIcon, 
-  TypescriptIcon, 
-  TailwindIcon, 
-  FramerIcon, 
-  JsIcon, 
-  HtmlIcon, 
-  GitIcon 
+import {
+  ReactIcon,
+  VueIcon,
+  TypescriptIcon,
+  TailwindIcon,
+  FramerIcon,
+  JsIcon,
+  HtmlIcon,
+  GitIcon,
+  NodeIcon,
+  DbIcon,
+  BootstrapIcon,
+  PostManIcon,
 } from "./Icons";
 
 const skills = [
-  { name: "React", icon: <ReactIcon />, radius: 160, speed: 20, direction: 1, color: "#61DAFB" },
-  { name: "Next.js", icon: <NextjsIcon />, radius: 160, speed: 25, direction: -1, color: "#FFFFFF" },
-  { name: "TypeScript", icon: <TypescriptIcon />, radius: 160, speed: 18, direction: 1, color: "#3178C6" },
-  { name: "Tailwind", icon: <TailwindIcon />, radius: 160, speed: 22, direction: -1, color: "#06B6D4" },
-  { name: "Framer", icon: <FramerIcon />, radius: 260, speed: 35, direction: 1, color: "#FF0055" },
-  { name: "JavaScript", icon: <JsIcon />, radius: 260, speed: 30, direction: -1, color: "#F7DF1E" },
-  { name: "HTML/CSS", icon: <HtmlIcon />, radius: 260, speed: 40, direction: 1, color: "#E34F26" },
-  { name: "Git", icon: <GitIcon />, radius: 260, speed: 32, direction: -1, color: "#F05032" },
+  {
+    name: "React",
+    icon: <ReactIcon />,
+    radius: 160,
+    speed: 20,
+    direction: 1,
+    color: "#61DAFB",
+  },
+  {
+    name: "Vuejs",
+    icon: <VueIcon />,
+    radius: 160,
+    speed: 25,
+    direction: -1,
+    color: "#009966",
+  },
+  {
+    name: "TypeScript",
+    icon: <TypescriptIcon />,
+    radius: 160,
+    speed: 18,
+    direction: 1,
+    color: "#3178C6",
+  },
+  {
+    name: "Tailwind",
+    icon: <TailwindIcon />,
+    radius: 160,
+    speed: 22,
+    direction: -1,
+    color: "#06B6D4",
+  },
+  {
+    name: "Framer",
+    icon: <FramerIcon />,
+    radius: 260,
+    speed: 35,
+    direction: 1,
+    color: "#FF0055",
+  },
+  {
+    name: "JavaScript",
+    icon: <JsIcon />,
+    radius: 260,
+    speed: 30,
+    direction: -1,
+    color: "#F7DF1E",
+  },
+  {
+    name: "HTML/CSS",
+    icon: <HtmlIcon />,
+    radius: 260,
+    speed: 40,
+    direction: 1,
+    color: "#E34F26",
+  },
+  {
+    name: "Git",
+    icon: <GitIcon />,
+    radius: 260,
+    speed: 32,
+    direction: -1,
+    color: "#FFFF",
+  },
+  {
+    name: "NodeJs",
+    icon: <NodeIcon />,
+    radius: 260,
+    speed: 36,
+    direction: -1,
+    color: "#00c950",
+  },
+  {
+    name: "Bootstrap",
+    icon: <BootstrapIcon />,
+    radius: 260,
+    speed: 36,
+    direction: -1,
+    color: "#7f22fe",
+  },
+  {
+    name: "SQL",
+    icon: <DbIcon />,
+    radius: 260,
+    speed: 36,
+    direction: -1,
+    color: "#155dfc",
+  },
+  {
+    name: "PostMan",
+    icon: <PostManIcon />,
+    radius: 270,
+    speed: 38,
+    direction: -1,
+    color: "#ff6900",
+  },
 ];
 
 export default function SkillsOrbit() {
   return (
-    <div className="relative w-full h-[600px] flex items-center justify-center overflow-hidden">
+    <div className="relative w-full h-[600px] flex items-center justify-center overflow-hidden cyan">
       {/* Central Orb */}
-      <motion.div 
+      <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         whileInView={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1, ease: "easeOut" }}
@@ -33,31 +125,40 @@ export default function SkillsOrbit() {
       >
         <div className="absolute inset-0 rounded-full bg-cyan-accent/20 blur-xl animate-pulse" />
         <h3 className="text-xl font-heading font-bold text-cyan-accent text-glow">
-          Tola San
-          <span className="block text-xs font-sans font-medium text-white/70 mt-1">Junior Web Engineer</span>
+          Teach Stacks
         </h3>
       </motion.div>
 
       {/* Orbiting Rings */}
-      <div className="absolute w-[320px] h-[320px] rounded-full border border-white/5" />
-      <div className="absolute w-[520px] h-[520px] rounded-full border border-white/5" />
+      <div className="absolute w-[450px] h-[450px] rounded-full border border-cyan-400/20" />
+      <div className="absolute w-[600px] h-[600px] rounded-full border border-indigo-500/30" />
+      <div className="absolute w-[300px] h-[300px] rounded-full border border-orange-500/30" />
 
       {/* Orbiting Skills */}
       {skills.map((skill, index) => (
-        <OrbitItem 
-          key={skill.name} 
-          skill={skill} 
-          index={index} 
-          total={skills.length} 
+        <OrbitItem
+          key={skill.name}
+          skill={skill}
+          index={index}
+          total={skills.length}
         />
       ))}
     </div>
   );
 }
 
-function OrbitItem({ skill, index, total }: { skill: any, index: number, total: number, key?: string | number }) {
-  const initialAngle = (index * (360 / total)) * (Math.PI / 180);
-  
+function OrbitItem({
+  skill,
+  index,
+  total,
+}: {
+  skill: any;
+  index: number;
+  total: number;
+  key?: string | number;
+}) {
+  const initialAngle = index * (360 / total) * (Math.PI / 180);
+
   return (
     <motion.div
       animate={{
@@ -91,8 +192,8 @@ function OrbitItem({ skill, index, total }: { skill: any, index: number, total: 
             repeat: Infinity,
             ease: "linear",
           }}
-          whileHover={{ 
-            scale: 1.2, 
+          whileHover={{
+            scale: 1.2,
             y: -10,
             boxShadow: `0 0 25px ${skill.color}44`,
           }}
@@ -101,24 +202,29 @@ function OrbitItem({ skill, index, total }: { skill: any, index: number, total: 
             borderColor: `${skill.color}33`,
           }}
         >
-          <div 
-            className="absolute inset-0 rounded-full border transition-colors duration-300 group-hover:border-opacity-100" 
-            style={{ 
-              borderColor: skill.color,
-              borderOpacity: 0.3
-            } as any}
+          <div
+            className="absolute inset-0 rounded-full border transition-colors duration-300 group-hover:border-opacity-100"
+            style={
+              {
+                borderColor: skill.color,
+                borderOpacity: 0.3,
+              } as any
+            }
           />
-          <div 
+          <div
             className="transition-colors duration-300"
-            style={{ color: 'white' }}
+            style={{ color: "white" }}
           >
-            <div className="group-hover:scale-110 transition-transform duration-300" style={{ color: 'inherit' }}>
+            <div
+              className="group-hover:scale-110 transition-transform duration-300"
+              style={{ color: "inherit" }}
+            >
               {skill.icon}
             </div>
           </div>
-          
+
           {/* Tooltip */}
-          <div 
+          <div
             className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-xs font-bold tracking-wide"
             style={{ color: skill.color }}
           >
@@ -126,7 +232,7 @@ function OrbitItem({ skill, index, total }: { skill: any, index: number, total: 
           </div>
 
           {/* Glow Effect on Hover */}
-          <div 
+          <div
             className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 blur-md transition-opacity duration-300"
             style={{ backgroundColor: skill.color }}
           />

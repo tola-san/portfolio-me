@@ -45,7 +45,7 @@ export default function ProjectCard({ title, description, image, tags, liveUrl, 
         </CardHeader>
         
         <CardContent className="flex-grow">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 ">
             {tags.map(tag => (
               <Badge key={tag} variant="secondary" className="bg-white/5 text-white/70 border-white/10 text-[10px] uppercase tracking-wider">
                 {tag}
@@ -54,7 +54,7 @@ export default function ProjectCard({ title, description, image, tags, liveUrl, 
           </div>
         </CardContent>
         
-        <CardFooter className="flex gap-4 pt-0">
+        <CardFooter className="flex gap-4 pt-6">
           <a 
             href={liveUrl} 
             target="_blank" 
