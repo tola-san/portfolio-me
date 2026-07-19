@@ -1,9 +1,9 @@
 "use client";
 
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
-import { Mail, Github, Linkedin, Send, Sparkles, ArrowDown } from "lucide-react";
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useAnimation } from "framer-motion";
+import { Mail, Github, Linkedin, Send, Sparkles, ArrowDown, Zap } from "lucide-react";
 import Navbar from "./components/Navbar";
-import SkillsOrbit from "./components/SkillsOrbit";
+import SkillsMarquee from "./components/SkillsMarquee";
 import ProjectCard from "./components/ProjectCard";
 import FloatingOrbs from "./components/FloatingOrbs";
 import { Button } from "./components/ui/button";
@@ -49,6 +49,198 @@ const projects = [
     githubUrl: "#",
   },
 ];
+
+// Antigravity Particle System
+const AntiGravityParticles = () => {
+  const particles = useRef<Array<{ 
+    x: number, 
+    y: number, 
+    vx: number, 
+    vy: number, 
+    size: number,
+    life: number,
+    maxLife: number,
+    color: string
+  }>>([]);
+  
+  const [particlePositions, setParticlePositions] = useState<Array<{x: number, y: number, size: number, color: string, opacity: number}>>([]);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        mouseX.set(e.clientX - rect.left);
+        mouseY.set(e.clientY - rect.top);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  useEffect(() => {
+    // Initialize particles
+    const colors = [
+      'rgba(34, 211, 238, 0.8)',
+      'rgba(99, 102, 241, 0.8)',
+      'rgba(168, 85, 247, 0.8)',
+      'rgba(6, 182, 212, 0.8)',
+      'rgba(236, 72, 153, 0.8)',
+    ];
+
+    for (let i = 0; i < 50; i++) {
+      particles.current.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5 - 0.2,
+        size: Math.random() * 4 + 2,
+        life: Math.random() * 100,
+        maxLife: Math.random() * 150 + 100,
+        color: colors[Math.floor(Math.random() * colors.length)],
+      });
+    }
+
+    const animate = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const mousePos = { x: mouseX.get(), y: mouseY.get() };
+      
+      particles.current = particles.current.map(p => {
+        // Physics: Antigravity - particles float upward
+        p.vy += -0.01;
+        
+        // Mouse interaction - repulsion force
+        const dx = p.x - mousePos.x;
+        const dy = p.y - mousePos.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist < 300) {
+          const force = (300 - dist) / 300 * 0.5;
+          const angle = Math.atan2(dy, dx);
+          p.vx += Math.cos(angle) * force * 0.1;
+          p.vy += Math.sin(angle) * force * 0.1;
+        }
+
+        // Update position
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Boundary with antigravity effect
+        if (p.y < -50) {
+          p.y = height + 50;
+          p.vy = -Math.random() * 0.5;
+        }
+        if (p.y > height + 50) {
+          p.y = -50;
+          p.vy = Math.random() * 0.5;
+        }
+        if (p.x < -50) p.x = width + 50;
+        if (p.x > width + 50) p.x = -50;
+
+        // Life cycle
+        p.life += 1;
+        if (p.life > p.maxLife) {
+          p.life = 0;
+          p.maxLife = Math.random() * 150 + 100;
+          p.x = Math.random() * width;
+          p.y = height + 20;
+          p.vx = (Math.random() - 0.5) * 0.5;
+          p.vy = -Math.random() * 0.5 - 0.2;
+        }
+
+        return p;
+      });
+
+      setParticlePositions(particles.current.map(p => ({
+        x: p.x,
+        y: p.y,
+        size: p.size,
+        color: p.color,
+        opacity: 0.3 + (p.life / p.maxLife) * 0.7,
+      })));
+
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+  }, []);
+
+  return (
+    <div ref={containerRef} className="absolute inset-0 pointer-events-none z-5">
+      {particlePositions.map((p, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            left: p.x,
+            top: p.y,
+            width: p.size,
+            height: p.size * 2,
+            background: p.color,
+            opacity: p.opacity,
+            filter: `blur(${p.size / 3}px)`,
+          }}
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: Math.random() * 3 + 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Floating Elements with Physics
+const FloatingElement = ({ 
+  children, 
+  delay = 0,
+  amplitude = 20,
+  duration = 4,
+  xRange = 20,
+}: { 
+  children: React.ReactNode, 
+  delay?: number,
+  amplitude?: number,
+  duration?: number,
+  xRange?: number,
+}) => {
+  const y = useMotionValue(0);
+  const x = useMotionValue(0);
+  
+  useEffect(() => {
+    const startY = -amplitude;
+    const endY = amplitude;
+    const startX = -xRange;
+    const endX = xRange;
+
+    const animate = () => {
+      const time = Date.now() / 1000 + delay;
+      y.set(Math.sin(time * (2 * Math.PI / duration)) * amplitude);
+      x.set(Math.sin(time * (2 * Math.PI / duration) * 0.7 + 1) * xRange);
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+  }, [amplitude, duration, xRange, delay]);
+
+  return (
+    <motion.div
+      style={{ y, x }}
+      className="relative"
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 // Cursor Grid Component
 const CursorGrid = () => {
@@ -99,7 +291,6 @@ const CursorGrid = () => {
         `,
       }}
     >
-      {/* Grid Pattern */}
       <div 
         className="absolute inset-0"
         style={{
@@ -112,7 +303,6 @@ const CursorGrid = () => {
         }}
       />
       
-      {/* Hover Glow Effect */}
       <div
         className="absolute pointer-events-none transition-opacity duration-300"
         style={{
@@ -133,7 +323,6 @@ const CursorGrid = () => {
         }}
       />
 
-      {/* Magnetic Grid Lines */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -148,7 +337,6 @@ const CursorGrid = () => {
         }}
       />
 
-      {/* Intersection Points */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -201,7 +389,6 @@ export default function Portfolio() {
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/20 via-transparent to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_50%,_var(--tw-gradient-stops))] from-indigo-900/10 via-transparent to-transparent" />
-        {/* Grid Line Overlay */}
         <div
           className="absolute inset-0 bg-[linear-gradient(to_right,#22d3ee06_1px,transparent_1px),linear-gradient(to_bottom,#22d3ee06_1px,transparent_1px)] 
                bg-[size:16px_16px] pointer-events-none"
@@ -213,6 +400,9 @@ export default function Portfolio() {
         ref={heroRef}
         className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 pt-20 overflow-hidden"
       >
+        {/* AntiGravity Particles */}
+        <AntiGravityParticles />
+
         {/* Cursor Grid Pattern */}
         <CursorGrid />
 
@@ -301,7 +491,23 @@ export default function Portfolio() {
           </motion.div>
         </motion.div>
 
-        {/* Scroll Indicator */}
+        {/* Floating Elements - Antigravity Style */}
+        <div className="absolute inset-0 pointer-events-none z-10">
+          <FloatingElement delay={0} amplitude={30} duration={5} xRange={25}>
+            <div className="absolute top-[15%] left-[8%] w-24 h-24 rounded-full bg-cyan-400/10 blur-3xl" />
+          </FloatingElement>
+          <FloatingElement delay={1} amplitude={25} duration={6} xRange={20}>
+            <div className="absolute top-[25%] right-[10%] w-32 h-32 rounded-full bg-indigo-400/10 blur-3xl" />
+          </FloatingElement>
+          <FloatingElement delay={2} amplitude={35} duration={7} xRange={30}>
+            <div className="absolute bottom-[30%] left-[15%] w-28 h-28 rounded-full bg-purple-400/10 blur-3xl" />
+          </FloatingElement>
+          <FloatingElement delay={0.5} amplitude={20} duration={4.5} xRange={15}>
+            <div className="absolute bottom-[20%] right-[12%] w-20 h-20 rounded-full bg-pink-400/10 blur-3xl" />
+          </FloatingElement>
+        </div>
+
+        {/* Scroll Indicator with Antigravity */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -310,24 +516,38 @@ export default function Portfolio() {
         >
           SCROLL TO EXPLORE
           <motion.div
-            animate={{ height: [0, 80, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            animate={{ 
+              height: [0, 80, 0],
+              opacity: [0.3, 1, 0.3],
+            }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             className="w-px bg-gradient-to-b from-transparent via-cyan-400/50 to-transparent"
           />
           <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
+            animate={{ 
+              y: [0, 15, 0],
+              opacity: [0.3, 1, 0.3],
+            }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
           >
             <ArrowDown size={16} className="text-cyan-400/50" />
           </motion.div>
         </motion.div>
       </section>
 
+      {/* Skills Section - Now using Marquee */}
+      <section
+        id="skills"
+        className="relative z-10 py-16 overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-cyan-500/5" />
+        <SkillsMarquee />
+      </section>
+
       {/* About Section */}
       <section id="about" className="relative z-10 py-32 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
-            {/* Photo Side */}
             <motion.div
               initial={{ opacity: 0, x: -60, rotateY: -10 }}
               whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
@@ -350,7 +570,6 @@ export default function Portfolio() {
               </div>
             </motion.div>
 
-            {/* Text Side */}
             <motion.div
               initial={{ opacity: 0, x: 60 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -416,35 +635,6 @@ export default function Portfolio() {
             </motion.div>
           </div>
         </div>
-      </section>
-
-      {/* Skills Section */}
-      <section
-        id="skills"
-        className="relative z-10 py-32 px-6 overflow-hidden"
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-cyan-500/5" />
-        <div
-          className="absolute inset-0 bg-[linear-gradient(to_right,#22d3ee06_1px,transparent_1px),linear-gradient(to_bottom,#22d3ee06_1px,transparent_1px)] 
-               bg-[size:50px_50px] pointer-events-none"
-        />
-
-        <div className="max-w-7xl mx-auto text-center mb-16 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-5xl md:text-6xl font-bold mb-4 inline-block">
-              <span className="bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">
-                SKILLS
-              </span>
-            </h2>
-            <p className="text-white/60 text-xl">Core technologies & expertise</p>
-          </motion.div>
-        </div>
-
-        <SkillsOrbit />
       </section>
 
       {/* Projects Section */}
@@ -558,7 +748,6 @@ export default function Portfolio() {
                 </div>
               </motion.div>
 
-              {/* Contact Form */}
               <motion.div
                 initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
