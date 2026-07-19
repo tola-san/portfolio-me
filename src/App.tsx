@@ -423,7 +423,7 @@ export default function Portfolio() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-block mb-6 px-6 py-2.5 rounded-full glass border border-cyan-400/30 text-cyan-400 text-xs font-bold tracking-widest uppercase backdrop-blur-xl"
+            className="inline-block mb-6 px-6 py-2.5 rounded-lg glass border border-cyan-400/30 text-cyan-400 text-xs font-bold tracking-widest uppercase backdrop-blur-xl"
           >
             <span className="inline-flex items-center gap-2">
               <Sparkles size={12} className="animate-pulse" />
@@ -467,7 +467,7 @@ export default function Portfolio() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-black font-semibold rounded-full px-10 h-14 shadow-lg shadow-cyan-400/30 transition-all duration-300 group"
+                className="bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-black font-semibold rounded-lg px-10 h-14 shadow-lg shadow-cyan-400/30 transition-all duration-300 group"
               >
                 View My Projects
                 <motion.span
@@ -483,7 +483,7 @@ export default function Portfolio() {
               <Button
                 size="lg"
                 variant="outline"
-                className="glass border-white/20 hover:border-cyan-400/50 hover:bg-white/5 rounded-full px-10 h-14 font-semibold backdrop-blur-xl transition-all duration-300"
+                className="glass border-white/20 hover:border-cyan-400/50 hover:bg-white/5 rounded-lg px-10 h-14 font-semibold backdrop-blur-xl transition-all duration-300"
               >
                 Contact Me
               </Button>
@@ -626,7 +626,7 @@ export default function Portfolio() {
                     whileHover={{ scale: 1.1, y: -3 }}
                     whileTap={{ scale: 0.9 }}
                     href={social.href}
-                    className="p-4 rounded-2xl glass border border-white/10 hover:border-cyan-400/50 hover:text-cyan-400 transition-all duration-300 backdrop-blur-xl"
+                    className="p-4 rounded-lg glass border border-white/10 hover:border-cyan-400/50 hover:text-cyan-400 transition-all duration-300 backdrop-blur-xl"
                   >
                     <social.icon size={22} />
                   </motion.a>
@@ -658,7 +658,7 @@ export default function Portfolio() {
               </p>
             </div>
             <motion.div whileHover={{ x: 5 }}>
-              <Button variant="link" className="text-cyan-400 mt-4 md:mt-0 group">
+              <Button variant="link" className="text-cyan-400 mt-4 md:mt-0 group rounded-lg">
                 View All Projects
                 <span className="inline-block ml-2 group-hover:translate-x-2 transition-transform">
                   →
@@ -734,7 +734,7 @@ export default function Portfolio() {
                       transition={{ delay: 0.3 + i * 0.1 }}
                       className="flex items-start gap-5 group"
                     >
-                      <div className="w-12 h-12 rounded-2xl glass flex items-center justify-center text-cyan-400 flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 rounded-lg glass flex items-center justify-center text-cyan-400 flex-shrink-0 group-hover:scale-110 transition-transform">
                         <item.icon size={24} />
                       </div>
                       <div>
@@ -759,30 +759,30 @@ export default function Portfolio() {
                   <motion.div whileHover={{ scale: 1.02 }}>
                     <Input
                       placeholder="Your Name"
-                      className="glass border-white/10 h-12 focus:border-cyan-400/50 transition-all duration-300"
+                      className="glass border-white/10 h-12 focus:border-cyan-400/50 transition-all duration-300 rounded-lg"
                     />
                   </motion.div>
                   <motion.div whileHover={{ scale: 1.02 }}>
                     <Input
                       placeholder="Email"
-                      className="glass border-white/10 h-12 focus:border-cyan-400/50 transition-all duration-300"
+                      className="glass border-white/10 h-12 focus:border-cyan-400/50 transition-all duration-300 rounded-lg"
                     />
                   </motion.div>
                 </div>
                 <motion.div whileHover={{ scale: 1.01 }}>
                   <Input
                     placeholder="Subject"
-                    className="glass border-white/10 h-12 focus:border-cyan-400/50 transition-all duration-300"
+                    className="glass border-white/10 h-12 focus:border-cyan-400/50 transition-all duration-300 rounded-lg"
                   />
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.01 }}>
                   <Textarea
                     placeholder="Your Message"
-                    className="glass border-white/10 min-h-40 focus:border-cyan-400/50 transition-all duration-300"
+                    className="glass border-white/10 min-h-40 focus:border-cyan-400/50 transition-all duration-300 rounded-lg"
                   />
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button className="w-full bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-black h-14 rounded-2xl font-semibold flex items-center gap-3 shadow-lg shadow-cyan-400/20 transition-all duration-300">
+                  <Button className="w-full bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-black h-14 rounded-lg font-semibold flex items-center gap-3 shadow-lg shadow-cyan-400/20 transition-all duration-300">
                     <Send size={20} />
                     Send Message
                   </Button>
