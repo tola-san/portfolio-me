@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { Mail, Github, Linkedin, Send, Sparkles, ArrowDown } from "lucide-react";
 import Navbar from "./components/Navbar";
 import SkillsOrbit from "./components/SkillsOrbit";
@@ -9,7 +9,7 @@ import FloatingOrbs from "./components/FloatingOrbs";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Textarea } from "./components/ui/textarea";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 const projects = [
   {
@@ -49,6 +49,123 @@ const projects = [
     githubUrl: "#",
   },
 ];
+
+// Cursor Grid Component
+const CursorGrid = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (gridRef.current) {
+        const rect = gridRef.current.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        setMousePosition({ x, y });
+      }
+    };
+
+    const handleMouseEnter = () => setIsHovering(true);
+    const handleMouseLeave = () => setIsHovering(false);
+
+    const element = gridRef.current;
+    if (element) {
+      element.addEventListener('mousemove', handleMouseMove);
+      element.addEventListener('mouseenter', handleMouseEnter);
+      element.addEventListener('mouseleave', handleMouseLeave);
+    }
+
+    return () => {
+      if (element) {
+        element.removeEventListener('mousemove', handleMouseMove);
+        element.removeEventListener('mouseenter', handleMouseEnter);
+        element.removeEventListener('mouseleave', handleMouseLeave);
+      }
+    };
+  }, []);
+
+  return (
+    <div
+      ref={gridRef}
+      className="absolute inset-0 z-10 pointer-events-auto overflow-hidden"
+      style={{
+        background: `
+          radial-gradient(
+            circle 200px at ${mousePosition.x}% ${mousePosition.y}%,
+            rgba(34, 211, 238, ${isHovering ? 0.15 : 0.05}),
+            transparent 70%
+          )
+        `,
+      }}
+    >
+      {/* Grid Pattern */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(34, 211, 238, ${isHovering ? 0.08 : 0.03}) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(34, 211, 238, ${isHovering ? 0.08 : 0.03}) 1px, transparent 1px)
+          `,
+          backgroundSize: '60px 60px',
+          transition: 'all 0.3s ease',
+        }}
+      />
+      
+      {/* Hover Glow Effect */}
+      <div
+        className="absolute pointer-events-none transition-opacity duration-300"
+        style={{
+          width: '400px',
+          height: '400px',
+          borderRadius: '50%',
+          background: `
+            radial-gradient(
+              circle at center,
+              rgba(34, 211, 238, ${isHovering ? 0.15 : 0.02}),
+              transparent 70%
+            )
+          `,
+          left: `${mousePosition.x}%`,
+          top: `${mousePosition.y}%`,
+          transform: 'translate(-50%, -50%)',
+          transition: 'all 0.15s ease-out',
+        }}
+      />
+
+      {/* Magnetic Grid Lines */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `
+            radial-gradient(
+              circle 300px at ${mousePosition.x}% ${mousePosition.y}%,
+              rgba(34, 211, 238, ${isHovering ? 0.1 : 0.02}) 0%,
+              transparent 100%
+            )
+          `,
+          transition: 'all 0.3s ease',
+        }}
+      />
+
+      {/* Intersection Points */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `
+            radial-gradient(
+              circle 2px at ${mousePosition.x}% ${mousePosition.y}%,
+              rgba(34, 211, 238, ${isHovering ? 0.6 : 0.2}),
+              transparent 100%
+            )
+          `,
+          backgroundSize: '60px 60px',
+          transition: 'all 0.2s ease',
+        }}
+      />
+    </div>
+  );
+};
 
 export default function Portfolio() {
   const heroRef = useRef(null);
@@ -96,9 +213,12 @@ export default function Portfolio() {
         ref={heroRef}
         className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 pt-20 overflow-hidden"
       >
+        {/* Cursor Grid Pattern */}
+        <CursorGrid />
+
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
         >
           <FloatingOrbs />
         </motion.div>
@@ -186,7 +306,7 @@ export default function Portfolio() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8, duration: 0.8 }}
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 text-xs tracking-widest text-white/40"
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 text-xs tracking-widest text-white/40 z-20"
         >
           SCROLL TO EXPLORE
           <motion.div
