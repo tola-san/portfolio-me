@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useTransform, useSpring, useScroll } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import {
   ReactIcon,
@@ -19,464 +19,344 @@ const skills = [
   {
     name: "React",
     icon: <ReactIcon />,
-    radius: 160,
-    speed: 20,
-    direction: 1,
     color: "#61DAFB",
     glowColor: "rgba(97, 218, 251, 0.3)",
   },
   {
     name: "Vuejs",
     icon: <VueIcon />,
-    radius: 160,
-    speed: 25,
-    direction: -1,
     color: "#009966",
     glowColor: "rgba(0, 153, 102, 0.3)",
   },
   {
     name: "TypeScript",
     icon: <TypescriptIcon />,
-    radius: 160,
-    speed: 18,
-    direction: 1,
     color: "#3178C6",
     glowColor: "rgba(49, 120, 198, 0.3)",
   },
   {
     name: "Tailwind",
     icon: <TailwindIcon />,
-    radius: 160,
-    speed: 22,
-    direction: -1,
     color: "#06B6D4",
     glowColor: "rgba(6, 182, 212, 0.3)",
   },
   {
     name: "Framer",
     icon: <FramerIcon />,
-    radius: 260,
-    speed: 35,
-    direction: 1,
     color: "#FF0055",
     glowColor: "rgba(255, 0, 85, 0.3)",
   },
   {
     name: "JavaScript",
     icon: <JsIcon />,
-    radius: 260,
-    speed: 30,
-    direction: -1,
     color: "#F7DF1E",
     glowColor: "rgba(247, 223, 30, 0.3)",
   },
   {
     name: "HTML/CSS",
     icon: <HtmlIcon />,
-    radius: 260,
-    speed: 40,
-    direction: 1,
     color: "#E34F26",
     glowColor: "rgba(227, 79, 38, 0.3)",
   },
   {
     name: "Git",
     icon: <GitIcon />,
-    radius: 260,
-    speed: 32,
-    direction: -1,
     color: "#FFFF",
     glowColor: "rgba(255, 255, 255, 0.2)",
   },
   {
     name: "NodeJs",
     icon: <NodeIcon />,
-    radius: 260,
-    speed: 36,
-    direction: -1,
     color: "#00c950",
     glowColor: "rgba(0, 201, 80, 0.3)",
   },
   {
     name: "Bootstrap",
     icon: <BootstrapIcon />,
-    radius: 260,
-    speed: 36,
-    direction: -1,
     color: "#7f22fe",
     glowColor: "rgba(127, 34, 254, 0.3)",
   },
   {
     name: "SQL",
     icon: <DbIcon />,
-    radius: 260,
-    speed: 36,
-    direction: -1,
     color: "#155dfc",
     glowColor: "rgba(21, 93, 252, 0.3)",
   },
   {
     name: "PostMan",
     icon: <PostManIcon />,
-    radius: 270,
-    speed: 38,
-    direction: -1,
     color: "#ff6900",
     glowColor: "rgba(255, 105, 0, 0.3)",
   },
 ];
 
-export default function SkillsOrbit() {
+// Duplicate skills for seamless marquee
+const marqueeSkills = [...skills, ...skills, ...skills];
+
+export default function SkillsMarquee() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
+  const [scrollSpeed, setScrollSpeed] = useState(1);
 
-  // Smooth mouse tracking
+  // Mouse tracking for parallax
   const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const springConfig = { damping: 25, stiffness: 150 };
-  const springX = useSpring(mouseX, springConfig);
-  const springY = useSpring(mouseY, springConfig);
+  const springX = useSpring(mouseX, { damping: 25, stiffness: 150 });
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const x = (e.clientX - centerX) / 20;
-        const y = (e.clientY - centerY) / 20;
+        const x = (e.clientX - centerX) / 50;
         mouseX.set(x);
-        mouseY.set(y);
-        setMousePosition({ x: e.clientX - centerX, y: e.clientY - centerY });
       }
-    };
-
-    const handleMouseEnter = () => setIsHovering(true);
-    const handleMouseLeave = () => {
-      setIsHovering(false);
-      mouseX.set(0);
-      mouseY.set(0);
     };
 
     const element = containerRef.current;
     if (element) {
       element.addEventListener('mousemove', handleMouseMove);
-      element.addEventListener('mouseenter', handleMouseEnter);
-      element.addEventListener('mouseleave', handleMouseLeave);
     }
 
     return () => {
       if (element) {
         element.removeEventListener('mousemove', handleMouseMove);
-        element.removeEventListener('mouseenter', handleMouseEnter);
-        element.removeEventListener('mouseleave', handleMouseLeave);
       }
     };
-  }, [mouseX, mouseY]);
+  }, [mouseX]);
 
-  // Parallax rotation effect
-  const rotateX = useTransform(springY, [-10, 10], [5, -5]);
-  const rotateY = useTransform(springX, [-10, 10], [-5, 5]);
+  // Parallax offset for rows
+  const row1Offset = useTransform(springX, [-10, 10], [-30, 30]);
+  const row2Offset = useTransform(springX, [-10, 10], [30, -30]);
+  const row3Offset = useTransform(springX, [-10, 10], [-20, 20]);
 
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-[700px] flex items-center justify-center overflow-hidden cursor-pointer"
+      className="relative w-full py-16 overflow-hidden bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
     >
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-indigo-500/5" />
-      
-      {/* Animated Background Particles */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-cyan-400/20"
-            initial={{
-              x: Math.random() * 600 - 300,
-              y: Math.random() * 600 - 300,
-              scale: 0,
-            }}
-            animate={{
-              x: Math.random() * 600 - 300,
-              y: Math.random() * 600 - 300,
-              scale: [0, 1, 0],
-            }}
-            transition={{
-              duration: Math.random() * 3 + 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-cyan-400/5 blur-3xl rounded-full" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black to-transparent" />
       </div>
 
-      {/* Central Orb with Parallax */}
+      {/* Section Header */}
       <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        whileInView={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
-        style={{
-          rotateX,
-          rotateY,
-        }}
-        className="relative z-20"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="relative z-10 text-center mb-12"
       >
-        <motion.div
-          animate={{
-            boxShadow: isHovering 
-              ? ["0 0 60px rgba(34, 211, 238, 0.4)", "0 0 100px rgba(34, 211, 238, 0.6)", "0 0 60px rgba(34, 211, 238, 0.4)"]
-              : "0 0 40px rgba(34, 211, 238, 0.2)",
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="relative w-44 h-44 rounded-full glass flex items-center justify-center text-center p-4 backdrop-blur-xl border border-cyan-400/30"
-        >
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/20 to-indigo-400/20 animate-pulse" />
-          <div className="absolute inset-[-2px] rounded-full bg-gradient-to-r from-cyan-400/30 via-indigo-400/30 to-cyan-400/30 animate-spin-slow" />
-          <div className="absolute inset-[-4px] rounded-full bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent animate-spin-slow-reverse" />
-          
-          <div className="relative z-10">
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">
-              Tech Stacks
-            </h3>
-            <div className="mt-2 text-xs text-cyan-400/60 font-mono tracking-wider">
-              {skills.length} Technologies
-            </div>
-          </div>
-
-          {/* Floating particles around center */}
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 rounded-full bg-cyan-400"
-              animate={{
-                x: [0, Math.cos(i * 60 * Math.PI / 180) * 60, 0],
-                y: [0, Math.sin(i * 60 * Math.PI / 180) * 60, 0],
-                opacity: [0, 1, 0],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                delay: i * 0.5,
-              }}
-            />
-          ))}
-        </motion.div>
+        <h2 className="text-4xl md:text-5xl font-bold mb-3">
+          <span className="bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">
+            Tech Stack
+          </span>
+        </h2>
+        <p className="text-white/40 text-sm tracking-widest uppercase">
+          {skills.length} Technologies • Hover to slow down
+        </p>
       </motion.div>
 
-      {/* Orbiting Rings with Glow */}
+      {/* Row 1 - Right to Left */}
       <motion.div
-        animate={{
-          rotate: isHovering ? 360 : 0,
-        }}
-        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-        className="absolute w-[450px] h-[450px] rounded-full"
+        style={{ x: row1Offset }}
+        className="relative z-10 flex items-center gap-8 mb-6"
       >
-        <div className="absolute inset-0 rounded-full border border-cyan-400/20 animate-pulse" />
-        <div className="absolute inset-[-20px] rounded-full border border-indigo-400/10 opacity-50" />
-        <div className="absolute inset-[-40px] rounded-full border border-cyan-400/5" />
-      </motion.div>
-
-      <motion.div
-        animate={{
-          rotate: isHovering ? -360 : 0,
-        }}
-        transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
-        className="absolute w-[600px] h-[600px] rounded-full"
-      >
-        <div className="absolute inset-0 rounded-full border border-indigo-500/20" />
-        <div className="absolute inset-[-30px] rounded-full border border-cyan-400/5" />
-      </motion.div>
-
-      <motion.div
-        animate={{
-          rotate: isHovering ? 360 : 0,
-        }}
-        transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-        className="absolute w-[300px] h-[300px] rounded-full"
-      >
-        <div className="absolute inset-0 rounded-full border border-orange-500/20" />
-      </motion.div>
-
-      {/* Orbiting Skills with Parallax */}
-      {skills.map((skill, index) => (
-        <OrbitItem
-          key={skill.name}
-          skill={skill}
-          index={index}
-          total={skills.length}
-          mouseX={springX}
-          mouseY={springY}
+        <MarqueeRow 
+          skills={marqueeSkills}
+          direction={-1}
+          duration={35}
           isHovering={isHovering}
+          speed={scrollSpeed}
+          row={1}
         />
-      ))}
+      </motion.div>
 
-      {/* Bottom Gradient Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent pointer-events-none" />
+      {/* Row 2 - Left to Right */}
+      <motion.div
+        style={{ x: row2Offset }}
+        className="relative z-10 flex items-center gap-8 mb-6"
+      >
+        <MarqueeRow 
+          skills={marqueeSkills}
+          direction={1}
+          duration={45}
+          isHovering={isHovering}
+          speed={scrollSpeed}
+          row={2}
+        />
+      </motion.div>
+
+      {/* Row 3 - Right to Left (Slower) */}
+      <motion.div
+        style={{ x: row3Offset }}
+        className="relative z-10 flex items-center gap-8"
+      >
+        <MarqueeRow 
+          skills={marqueeSkills}
+          direction={-1}
+          duration={55}
+          isHovering={isHovering}
+          speed={scrollSpeed}
+          row={3}
+        />
+      </motion.div>
+
+      {/* Gradient Overlay Controls */}
+      <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black to-transparent pointer-events-none z-20" />
+      <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black to-transparent pointer-events-none z-20" />
+
+      {/* Speed Control Indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHovering ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full glass border border-white/10 backdrop-blur-xl"
+      >
+        <div className="flex items-center gap-3 text-xs text-white/40">
+          <span className="tracking-wider">HOVERING</span>
+          <div className="flex gap-1">
+            <div className={`w-1 h-1 rounded-full bg-cyan-400/60 transition-all ${isHovering ? 'scale-150' : ''}`} />
+            <div className={`w-1 h-1 rounded-full bg-cyan-400/40 transition-all ${isHovering ? 'scale-150' : ''}`} />
+            <div className={`w-1 h-1 rounded-full bg-cyan-400/20 transition-all ${isHovering ? 'scale-150' : ''}`} />
+          </div>
+          <span className="tracking-wider">{isHovering ? 'PAUSED' : 'SCROLLING'}</span>
+        </div>
+      </motion.div>
     </div>
   );
 }
 
-function OrbitItem({
-  skill,
-  index,
-  total,
-  mouseX,
-  mouseY,
+function MarqueeRow({ 
+  skills, 
+  direction, 
+  duration, 
   isHovering,
-}: {
-  skill: any;
-  index: number;
-  total: number;
-  mouseX: any;
-  mouseY: any;
-  isHovering: boolean;
-  key?: string | number;
+  speed,
+  row
+}: { 
+  skills: any[], 
+  direction: number, 
+  duration: number,
+  isHovering: boolean,
+  speed: number,
+  row: number
 }) {
-  const initialAngle = index * (360 / total) * (Math.PI / 180);
-  const [isVisible, setIsVisible] = useState(false);
+  const [width, setWidth] = useState(0);
+  const rowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), index * 50);
-    return () => clearTimeout(timer);
-  }, [index]);
+    if (rowRef.current) {
+      setWidth(rowRef.current.scrollWidth / 3);
+    }
+  }, []);
 
-  // Parallax offset for each item
-  const itemOffsetX = useTransform(mouseX, (x) => x * (0.5 + (index % 3) * 0.1));
-  const itemOffsetY = useTransform(mouseY, (y) => y * (0.5 + (index % 3) * 0.1));
+  // Different scale for each row
+  const getScale = () => {
+    switch(row) {
+      case 1: return 1.2;
+      case 2: return 1;
+      case 3: return 0.8;
+      default: return 1;
+    }
+  };
+
+  // Different opacity for each row
+  const getOpacity = () => {
+    switch(row) {
+      case 1: return 1;
+      case 2: return 0.8;
+      case 3: return 0.6;
+      default: return 1;
+    }
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ 
-        opacity: isVisible ? 1 : 0,
-        scale: isVisible ? 1 : 0,
-      }}
-      transition={{ duration: 0.6, delay: index * 0.05 }}
-      style={{
-        position: "absolute",
-        width: skill.radius * 2,
-        height: skill.radius * 2,
-        x: itemOffsetX,
-        y: itemOffsetY,
-      }}
-      className="flex items-center justify-center"
-    >
+    <div className="relative overflow-hidden w-full">
       <motion.div
+        ref={rowRef}
+        className="flex gap-8 py-2"
         animate={{
-          rotate: skill.direction * 360,
+          x: direction === 1 ? [0, -width] : [-width, 0],
         }}
         transition={{
-          duration: skill.speed,
+          duration: isHovering ? duration * 3 : duration,
           repeat: Infinity,
           ease: "linear",
+          repeatType: "loop",
         }}
-        className="w-full h-full flex items-center justify-center"
+        style={{
+          scale: getScale(),
+          opacity: getOpacity(),
+        }}
       >
-        <motion.div
-          style={{
-            transform: `translate(${skill.radius}px, 0)`,
-          }}
-          className="relative"
-        >
-          {/* Counter-rotate the content so the icon stays upright */}
+        {skills.map((skill, index) => (
           <motion.div
-            animate={{
-              rotate: -skill.direction * 360,
-            }}
-            transition={{
-              duration: skill.speed,
-              repeat: Infinity,
-              ease: "linear",
-            }}
+            key={`${skill.name}-${index}`}
             whileHover={{
-              scale: 1.4,
-              y: -15,
-              transition: { duration: 0.3, ease: "easeOut" },
+              scale: 1.3,
+              y: -10,
+              transition: { duration: 0.2, ease: "easeOut" },
             }}
-            className="group relative w-16 h-16 rounded-full glass flex items-center justify-center cursor-pointer transition-all duration-300 backdrop-blur-xl border border-white/10 hover:border-opacity-100"
+            className="group relative flex-shrink-0 flex items-center gap-3 px-6 py-3 rounded-2xl glass backdrop-blur-xl border border-white/5 hover:border-opacity-100 transition-all duration-300 cursor-pointer"
             style={{
               borderColor: `${skill.color}33`,
-              boxShadow: isHovering ? `0 0 30px ${skill.glowColor}` : "none",
             }}
           >
-            {/* Animated Ring */}
+            {/* Glow Effect on Hover */}
             <motion.div
-              className="absolute inset-[-3px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               style={{
-                border: `2px solid ${skill.color}`,
-                boxShadow: `0 0 20px ${skill.color}`,
-              }}
-              animate={{
-                rotate: 360,
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "linear",
+                background: `radial-gradient(circle at center, ${skill.glowColor}, transparent 70%)`,
+                filter: "blur(20px)",
               }}
             />
 
-            <div
-              className="absolute inset-0 rounded-full transition-colors duration-300 group-hover:bg-opacity-20"
-              style={{
-                backgroundColor: skill.color,
-                opacity: 0.1,
-              }}
-            />
-
-            <div
-              className="relative z-10 transition-all duration-300"
-              style={{ color: "white" }}
-            >
+            {/* Icon Container */}
+            <div className="relative z-10">
               <div
-                className="group-hover:scale-110 transition-transform duration-300"
-                style={{ color: "inherit" }}
+                className="transition-all duration-300 group-hover:scale-110"
+                style={{ color: "white" }}
               >
                 {skill.icon}
               </div>
             </div>
 
-            {/* Glow Effect on Hover */}
-            <div
-              className="absolute inset-[-20px] rounded-full opacity-0 group-hover:opacity-100 blur-2xl transition-opacity duration-500"
-              style={{ backgroundColor: skill.color }}
-            />
-
-            {/* Tooltip with Animation */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              whileHover={{ opacity: 1, y: 0 }}
-              className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-bold tracking-wide pointer-events-none"
+            {/* Skill Name */}
+            <motion.span
+              initial={{ opacity: 0, x: -10 }}
+              whileHover={{ opacity: 1, x: 0 }}
+              className="relative z-10 text-sm font-medium text-white/0 group-hover:text-white transition-all duration-300"
               style={{ color: skill.color }}
             >
-              <span className="bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10">
-                {skill.name}
-              </span>
-            </motion.div>
+              {skill.name}
+            </motion.span>
 
-            {/* Orbital Trail */}
+            {/* Animated Border Ring */}
             <motion.div
-              className="absolute inset-[-40px] rounded-full pointer-events-none"
+              className="absolute inset-0 rounded-2xl pointer-events-none"
               animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0, 0.3],
+                boxShadow: [
+                  `inset 0 0 0 0px ${skill.color}`,
+                  `inset 0 0 20px 0px ${skill.color}33`,
+                  `inset 0 0 0 0px ${skill.color}`,
+                ],
               }}
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                delay: index * 0.1,
-              }}
-              style={{
-                border: `1px solid ${skill.color}`,
-                opacity: 0.1,
+                ease: "easeInOut",
               }}
             />
+
+            {/* Status Dot */}
+            <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400/0 group-hover:bg-emerald-400/60 transition-all duration-300" />
           </motion.div>
-        </motion.div>
+        ))}
       </motion.div>
-    </motion.div>
+    </div>
   );
 }
