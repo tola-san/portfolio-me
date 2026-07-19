@@ -1,15 +1,15 @@
 "use client";
 
-import { motion, useScroll, useTransform, useMotionValue, useSpring, useAnimation } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValue } from "motion/react";
 import { Mail, Github, Linkedin, Send, Sparkles, ArrowDown, Zap } from "lucide-react";
 import Navbar from "./components/Navbar";
-import SkillsMarquee from "./components/SkillsMarquee";
+import SkillsMarquee from "./components/SkillsMarquee ";
 import ProjectCard from "./components/ProjectCard";
 import FloatingOrbs from "./components/FloatingOrbs";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Textarea } from "./components/ui/textarea";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, type ReactNode } from "react";
 
 const projects = [
   {
@@ -104,6 +104,8 @@ const AntiGravityParticles = () => {
       });
     }
 
+    let animationFrameId = 0;
+
     const animate = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
@@ -163,10 +165,12 @@ const AntiGravityParticles = () => {
         opacity: 0.3 + (p.life / p.maxLife) * 0.7,
       })));
 
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     };
 
     animate();
+
+    return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
   return (
@@ -207,7 +211,7 @@ const FloatingElement = ({
   duration = 4,
   xRange = 20,
 }: { 
-  children: React.ReactNode, 
+  children: ReactNode,
   delay?: number,
   amplitude?: number,
   duration?: number,
@@ -222,14 +226,18 @@ const FloatingElement = ({
     const startX = -xRange;
     const endX = xRange;
 
+    let animationFrameId = 0;
+
     const animate = () => {
       const time = Date.now() / 1000 + delay;
       y.set(Math.sin(time * (2 * Math.PI / duration)) * amplitude);
       x.set(Math.sin(time * (2 * Math.PI / duration) * 0.7 + 1) * xRange);
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     };
 
     animate();
+
+    return () => cancelAnimationFrame(animationFrameId);
   }, [amplitude, duration, xRange, delay]);
 
   return (
@@ -242,9 +250,9 @@ const FloatingElement = ({
   );
 };
 
-// Cursor Grid Component
+// Cursor Grid Component - FIXED
 const CursorGrid = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
   const [isHovering, setIsHovering] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -255,23 +263,23 @@ const CursorGrid = () => {
         const x = ((e.clientX - rect.left) / rect.width) * 100;
         const y = ((e.clientY - rect.top) / rect.height) * 100;
         setMousePosition({ x, y });
+        setIsHovering(true);
       }
     };
 
-    const handleMouseEnter = () => setIsHovering(true);
-    const handleMouseLeave = () => setIsHovering(false);
+    const handleMouseLeave = () => {
+      setIsHovering(false);
+    };
 
     const element = gridRef.current;
     if (element) {
       element.addEventListener('mousemove', handleMouseMove);
-      element.addEventListener('mouseenter', handleMouseEnter);
       element.addEventListener('mouseleave', handleMouseLeave);
     }
 
     return () => {
       if (element) {
         element.removeEventListener('mousemove', handleMouseMove);
-        element.removeEventListener('mouseenter', handleMouseEnter);
         element.removeEventListener('mouseleave', handleMouseLeave);
       }
     };
@@ -280,18 +288,20 @@ const CursorGrid = () => {
   return (
     <div
       ref={gridRef}
-      className="absolute inset-0 z-10 pointer-events-auto overflow-hidden"
+      className="absolute inset-0 z-10 pointer-events-none overflow-hidden"
       style={{
         background: `
           radial-gradient(
             circle 200px at ${mousePosition.x}% ${mousePosition.y}%,
-            rgba(34, 211, 238, ${isHovering ? 0.15 : 0.05}),
+            rgba(34, 211, 238, ${isHovering ? 0.15 : 0.03}),
             transparent 70%
           )
         `,
+        transition: 'background 0.3s ease',
       }}
     >
-      <div 
+      {/* Grid lines */}
+      <div
         className="absolute inset-0"
         style={{
           backgroundImage: `
@@ -303,54 +313,172 @@ const CursorGrid = () => {
         }}
       />
       
+      {/* Radial glow that follows cursor */}
       <div
-        className="absolute pointer-events-none transition-opacity duration-300"
+        className="absolute pointer-events-none transition-all duration-150 ease-out"
         style={{
-          width: '400px',
-          height: '400px',
+          width: '500px',
+          height: '500px',
           borderRadius: '50%',
           background: `
             radial-gradient(
               circle at center,
-              rgba(34, 211, 238, ${isHovering ? 0.15 : 0.02}),
+              rgba(34, 211, 238, ${isHovering ? 0.12 : 0.02}),
               transparent 70%
             )
           `,
           left: `${mousePosition.x}%`,
           top: `${mousePosition.y}%`,
           transform: 'translate(-50%, -50%)',
-          transition: 'all 0.15s ease-out',
         }}
       />
 
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `
-            radial-gradient(
-              circle 300px at ${mousePosition.x}% ${mousePosition.y}%,
-              rgba(34, 211, 238, ${isHovering ? 0.1 : 0.02}) 0%,
-              transparent 100%
-            )
-          `,
-          transition: 'all 0.3s ease',
-        }}
-      />
-
+      {/* Cursor highlight dots */}
       <div 
-        className="absolute inset-0 pointer-events-none"
+        className="absolute pointer-events-none"
         style={{
-          backgroundImage: `
+          width: '200px',
+          height: '200px',
+          left: `${mousePosition.x}%`,
+          top: `${mousePosition.y}%`,
+          transform: 'translate(-50%, -50%)',
+          background: `
             radial-gradient(
-              circle 2px at ${mousePosition.x}% ${mousePosition.y}%,
-              rgba(34, 211, 238, ${isHovering ? 0.6 : 0.2}),
+              circle 2px at 20% 20%,
+              rgba(34, 211, 238, ${isHovering ? 0.4 : 0.1}),
+              transparent 100%
+            ),
+            radial-gradient(
+              circle 2px at 80% 80%,
+              rgba(34, 211, 238, ${isHovering ? 0.4 : 0.1}),
+              transparent 100%
+            ),
+            radial-gradient(
+              circle 2px at 50% 50%,
+              rgba(34, 211, 238, ${isHovering ? 0.6 : 0.15}),
               transparent 100%
             )
           `,
-          backgroundSize: '60px 60px',
           transition: 'all 0.2s ease',
         }}
       />
+    </div>
+  );
+};
+
+// Animated dot wave inspired by React Bits' interactive background components.
+const DotField = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const pointer = { x: -1000, y: -1000 };
+    let width = 0;
+    let height = 0;
+    let animationFrameId = 0;
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      width = rect.width;
+      height = rect.height;
+      canvas.width = Math.round(width * pixelRatio);
+      canvas.height = Math.round(height * pixelRatio);
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = event.clientX - rect.left;
+      pointer.y = event.clientY - rect.top;
+    };
+
+    const handlePointerLeave = () => {
+      pointer.x = -1000;
+      pointer.y = -1000;
+    };
+
+    const draw = (time = 0) => {
+      context.clearRect(0, 0, width, height);
+
+      const spacing = width < 640 ? 26 : 31;
+      const influenceRadius = 145;
+      const centerX = width / 2;
+      const centerY = height * 0.46;
+
+      for (let baseY = spacing / 2; baseY < height; baseY += spacing) {
+        for (let baseX = spacing / 2; baseX < width; baseX += spacing) {
+          const wave = reducedMotion.matches
+            ? 0
+            : Math.sin(baseX * 0.018 + baseY * 0.012 - time * 0.0012);
+          const waveOffset = wave * 3.5;
+          const dx = baseX - pointer.x;
+          const dy = baseY - pointer.y;
+          const distance = Math.hypot(dx, dy);
+          const proximity = Math.max(0, 1 - distance / influenceRadius);
+          const push = proximity * proximity * 13;
+          const x = baseX + (distance ? (dx / distance) * push : 0);
+          const y = baseY + waveOffset + (distance ? (dy / distance) * push : 0);
+
+          const normalizedX = (baseX - centerX) / (width * 0.58);
+          const normalizedY = (baseY - centerY) / (height * 0.58);
+          const edgeFade = Math.max(0, 1 - Math.hypot(normalizedX, normalizedY));
+          if (edgeFade <= 0.02) continue;
+
+          const radius = 1.15 + proximity * 1.9 + (wave + 1) * 0.12;
+          const opacity = Math.min(0.72, 0.12 + edgeFade * 0.42 + proximity * 0.3);
+
+          context.beginPath();
+          context.arc(x, y, radius, 0, Math.PI * 2);
+          context.fillStyle = `rgba(103, 232, 249, ${opacity})`;
+          context.fill();
+        }
+      }
+
+      if (!reducedMotion.matches) {
+        animationFrameId = requestAnimationFrame(draw);
+      }
+    };
+
+    const restartAnimation = () => {
+      cancelAnimationFrame(animationFrameId);
+      draw();
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      resize();
+      if (reducedMotion.matches) draw();
+    });
+
+    resizeObserver.observe(canvas);
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    document.documentElement.addEventListener("pointerleave", handlePointerLeave);
+    reducedMotion.addEventListener("change", restartAnimation);
+    resize();
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      resizeObserver.disconnect();
+      window.removeEventListener("pointermove", handlePointerMove);
+      document.documentElement.removeEventListener("pointerleave", handlePointerLeave);
+      reducedMotion.removeEventListener("change", restartAnimation);
+    };
+  }, []);
+
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
+    >
+      <canvas ref={canvasRef} className="absolute inset-0 size-full opacity-90" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(34,211,238,0.13),transparent_50%)]" />
     </div>
   );
 };
@@ -400,11 +528,7 @@ export default function Portfolio() {
         ref={heroRef}
         className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 pt-20 overflow-hidden"
       >
-        {/* AntiGravity Particles */}
-        <AntiGravityParticles />
-
-        {/* Cursor Grid Pattern */}
-        <CursorGrid />
+        <DotField />
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
@@ -423,7 +547,7 @@ export default function Portfolio() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-block mb-6 px-6 py-2.5 rounded-lg glass border border-cyan-400/30 text-cyan-400 text-xs font-bold tracking-widest uppercase backdrop-blur-xl"
+            className="inline-block mb-6 px-6 py-2.5 rounded-md glass border border-cyan-400/30 text-cyan-400 text-xs font-bold tracking-widest uppercase backdrop-blur-xl"
           >
             <span className="inline-flex items-center gap-2">
               <Sparkles size={12} className="animate-pulse" />
@@ -466,8 +590,8 @@ export default function Portfolio() {
           >
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
-                size="lg"
-                className="bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-black font-semibold rounded-lg px-10 h-14 shadow-lg shadow-cyan-400/30 transition-all duration-300 group"
+                size="sm"
+                className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-white hover:bg-cyan-400 font-semibold rounded-md px-10 h-10 shadow-lg shadow-cyan-400/30 transition-all duration-300 group "
               >
                 View My Projects
                 <motion.span
@@ -483,7 +607,7 @@ export default function Portfolio() {
               <Button
                 size="lg"
                 variant="outline"
-                className="glass border-white/20 hover:border-cyan-400/50 hover:bg-white/5 rounded-lg px-10 h-14 font-semibold backdrop-blur-xl transition-all duration-300"
+                className="glass border-white/20 hover:border-cyan-400/50 hover:bg-white/5 rounded-md px-10 h-10 font-semibold backdrop-blur-xl transition-all duration-300"
               >
                 Contact Me
               </Button>
@@ -508,7 +632,7 @@ export default function Portfolio() {
         </div>
 
         {/* Scroll Indicator with Antigravity */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8, duration: 0.8 }}
@@ -532,7 +656,7 @@ export default function Portfolio() {
           >
             <ArrowDown size={16} className="text-cyan-400/50" />
           </motion.div>
-        </motion.div>
+        </motion.div> */}
       </section>
 
       {/* Skills Section - Now using Marquee */}
@@ -626,7 +750,7 @@ export default function Portfolio() {
                     whileHover={{ scale: 1.1, y: -3 }}
                     whileTap={{ scale: 0.9 }}
                     href={social.href}
-                    className="p-4 rounded-lg glass border border-white/10 hover:border-cyan-400/50 hover:text-cyan-400 transition-all duration-300 backdrop-blur-xl"
+                    className="p-4 rounded-md glass border border-white/10 hover:border-cyan-400/50 hover:text-cyan-400 transition-all duration-300 backdrop-blur-xl"
                   >
                     <social.icon size={22} />
                   </motion.a>
@@ -658,7 +782,7 @@ export default function Portfolio() {
               </p>
             </div>
             <motion.div whileHover={{ x: 5 }}>
-              <Button variant="link" className="text-cyan-400 mt-4 md:mt-0 group rounded-lg">
+              <Button variant="link" className="text-cyan-400 mt-4 md:mt-0 group rounded-md">
                 View All Projects
                 <span className="inline-block ml-2 group-hover:translate-x-2 transition-transform">
                   →
@@ -734,7 +858,7 @@ export default function Portfolio() {
                       transition={{ delay: 0.3 + i * 0.1 }}
                       className="flex items-start gap-5 group"
                     >
-                      <div className="w-12 h-12 rounded-lg glass flex items-center justify-center text-cyan-400 flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 rounded-md glass flex items-center justify-center text-cyan-400 flex-shrink-0 group-hover:scale-110 transition-transform">
                         <item.icon size={24} />
                       </div>
                       <div>
@@ -759,30 +883,30 @@ export default function Portfolio() {
                   <motion.div whileHover={{ scale: 1.02 }}>
                     <Input
                       placeholder="Your Name"
-                      className="glass border-white/10 h-12 focus:border-cyan-400/50 transition-all duration-300 rounded-lg"
+                      className="glass border-white/10 h-12 focus:border-cyan-400/50 transition-all duration-300 rounded-md"
                     />
                   </motion.div>
                   <motion.div whileHover={{ scale: 1.02 }}>
                     <Input
                       placeholder="Email"
-                      className="glass border-white/10 h-12 focus:border-cyan-400/50 transition-all duration-300 rounded-lg"
+                      className="glass border-white/10 h-12 focus:border-cyan-400/50 transition-all duration-300 rounded-md"
                     />
                   </motion.div>
                 </div>
                 <motion.div whileHover={{ scale: 1.01 }}>
                   <Input
                     placeholder="Subject"
-                    className="glass border-white/10 h-12 focus:border-cyan-400/50 transition-all duration-300 rounded-lg"
+                    className="glass border-white/10 h-12 focus:border-cyan-400/50 transition-all duration-300 rounded-md"
                   />
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.01 }}>
                   <Textarea
                     placeholder="Your Message"
-                    className="glass border-white/10 min-h-40 focus:border-cyan-400/50 transition-all duration-300 rounded-lg"
+                    className="glass border-white/10 min-h-40 focus:border-cyan-400/50 transition-all duration-300 rounded-md"
                   />
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button className="w-full bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-black h-14 rounded-lg font-semibold flex items-center gap-3 shadow-lg shadow-cyan-400/20 transition-all duration-300">
+                  <Button className="w-full bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-black h-14 rounded-md font-semibold flex items-center gap-3 shadow-lg shadow-cyan-400/20 transition-all duration-300">
                     <Send size={20} />
                     Send Message
                   </Button>

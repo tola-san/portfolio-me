@@ -1,7 +1,7 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -99,5 +99,61 @@
 
   .cyan-glow {
     box-shadow: 0 0 20px rgba(34, 240, 255, 0.2);
+  }
+
+  .ios-material-card {
+    background: linear-gradient(145deg, rgba(255,255,255,.085), rgba(255,255,255,.025) 52%, rgba(34,211,238,.025)), rgba(8,12,18,.72);
+    border: 1px solid rgba(255,255,255,.13);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(255,255,255,.035), 0 20px 55px rgba(0,0,0,.34);
+    backdrop-filter: blur(28px) saturate(145%);
+    -webkit-backdrop-filter: blur(28px) saturate(145%);
+  }
+
+  .liquid-glass-control {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: linear-gradient(155deg, rgba(255,255,255,.2), rgba(255,255,255,.07) 48%, rgba(255,255,255,.11)), rgba(15,20,27,.42);
+    border: 1px solid rgba(255,255,255,.2);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(255,255,255,.06), 0 8px 24px rgba(0,0,0,.24);
+    backdrop-filter: blur(20px) saturate(175%);
+    -webkit-backdrop-filter: blur(20px) saturate(175%);
+  }
+
+  .liquid-glass-control::before {
+    content: "";
+    position: absolute;
+    inset: 1px 8% auto;
+    height: 45%;
+    border-radius: inherit;
+    background: linear-gradient(to bottom, rgba(255,255,255,.2), transparent);
+    opacity: .7;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .liquid-glass-control:hover {
+    border-color: rgba(255,255,255,.3);
+    background: linear-gradient(155deg, rgba(255,255,255,.25), rgba(255,255,255,.09) 48%, rgba(34,211,238,.1)), rgba(15,20,27,.5);
+  }
+
+  .liquid-glass-control:active {
+    transform: scale(.97);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.2), 0 3px 12px rgba(0,0,0,.2);
+  }
+
+  .liquid-glass-accent {
+    background: linear-gradient(155deg, rgba(255,255,255,.42), rgba(255,255,255,.08) 48%, rgba(6,182,212,.3)), rgba(34,240,255,.88);
+    border-color: rgba(207,250,254,.72);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.62), inset 0 -1px 0 rgba(8,145,178,.3), 0 9px 28px rgba(34,211,238,.24);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ios-material-card,
+  .liquid-glass-control {
+    background: #111820;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }

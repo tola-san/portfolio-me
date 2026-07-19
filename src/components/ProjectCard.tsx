@@ -1,8 +1,8 @@
-import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
-import { ExternalLink, Github, Sparkles, ArrowUpRight, Eye } from "lucide-react";
+import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from "motion/react";
+import { ExternalLink, Github, ArrowUpRight, Eye } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
-import { useState, useRef } from "react";
+import { useState, useRef, type MouseEvent } from "react";
 
 interface ProjectProps {
   title: string;
@@ -22,14 +22,18 @@ export default function ProjectCard({ title, description, image, tags, liveUrl, 
   // 3D Tilt Effect
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+  const glowX = useMotionValue(0);
+  const glowY = useMotionValue(0);
   
   const springX = useSpring(x, { damping: 25, stiffness: 200 });
   const springY = useSpring(y, { damping: 25, stiffness: 200 });
 
   const rotateX = useTransform(springY, [-100, 100], [8, -8]);
   const rotateY = useTransform(springX, [-100, 100], [-8, 8]);
+  const borderGlow = useMotionTemplate`radial-gradient(190px circle at ${glowX}px ${glowY}px, rgba(34, 240, 255, 0.95), rgba(99, 102, 241, 0.5) 38%, transparent 72%)`;
+  const surfaceGlow = useMotionTemplate`radial-gradient(260px circle at ${glowX}px ${glowY}px, rgba(34, 240, 255, 0.1), transparent 68%)`;
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
@@ -38,6 +42,8 @@ export default function ProjectCard({ title, description, image, tags, liveUrl, 
     const mouseY = e.clientY - centerY;
     x.set(mouseX);
     y.set(mouseY);
+    glowX.set(e.clientX - rect.left);
+    glowY.set(e.clientY - rect.top);
   };
 
   const handleMouseLeave = () => {
@@ -73,36 +79,39 @@ export default function ProjectCard({ title, description, image, tags, liveUrl, 
       }}
       className="group h-full"
     >
-      <Card className="relative overflow-hidden h-full flex flex-col backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl shadow-black/20 transition-all duration-300"
-        style={{
-          background: isHovered 
-            ? "linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))"
-            : "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01))",
-        }}
-      >
+      <Card className="ios-material-card relative h-full gap-0 overflow-hidden rounded-lg py-0 ring-0 transition-all duration-300">
         {/* iOS Style Glass Effect */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
         </div>
 
-        {/* Animated Gradient Border */}
+        {/* Pointer-tracking Border Glow */}
         <motion.div
-          className="absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-          animate={{
-            background: isHovered 
-              ? [
-                  "conic-gradient(from 0deg, transparent, rgba(34,211,238,0.3), transparent, rgba(99,102,241,0.3), transparent)",
-                  "conic-gradient(from 360deg, transparent, rgba(34,211,238,0.3), transparent, rgba(99,102,241,0.3), transparent)",
-                ]
-              : "conic-gradient(from 0deg, transparent, transparent)",
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-30 rounded-lg p-px"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isHovered ? 1 : 0 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+          style={{
+            background: borderGlow,
+            WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+            WebkitMaskComposite: "xor",
+            maskComposite: "exclude",
           }}
-          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-          style={{ borderRadius: "16px" }}
+        />
+
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-10 rounded-lg"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isHovered ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+          style={{ background: surfaceGlow }}
         />
 
         {/* Image Container with iOS Style */}
-        <div className="relative h-52 overflow-hidden rounded-t-2xl">
+        <div className="relative h-48 shrink-0 overflow-hidden sm:h-52">
           <motion.img 
             src={image} 
             alt={title} 
@@ -124,7 +133,7 @@ export default function ProjectCard({ title, description, image, tags, liveUrl, 
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="absolute top-4 right-4"
           >
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10">
+            <div className="liquid-glass-control flex items-center gap-1.5 rounded-xl px-3 py-1.5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
@@ -138,16 +147,16 @@ export default function ProjectCard({ title, description, image, tags, liveUrl, 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-2.5 rounded-full bg-white/10 backdrop-blur-2xl border border-white/20 text-white text-sm font-medium flex items-center gap-2 hover:bg-white/20 transition-colors"
+            className="liquid-glass-control absolute bottom-24 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium text-white"
           >
             <Eye size={16} />
             Quick View
           </motion.button>
         </div>
         
-        <CardHeader className="pb-2 pt-5 px-5">
+        <CardHeader className="gap-2 px-6 pb-3 pt-6">
           <div className="flex items-start justify-between gap-3">
-            <CardTitle className="text-xl font-semibold text-white group-hover:text-cyan-400 transition-colors duration-300">
+            <CardTitle className="text-xl font-semibold leading-tight text-white transition-colors duration-300 group-hover:text-cyan-400">
               {title}
             </CardTitle>
             <motion.div
@@ -156,18 +165,18 @@ export default function ProjectCard({ title, description, image, tags, liveUrl, 
                 scale: isHovered ? 1.1 : 1,
               }}
               transition={{ duration: 0.3 }}
-              className="flex-shrink-0 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center"
+              className="liquid-glass-control flex size-9 flex-shrink-0 items-center justify-center rounded-xl"
             >
               <ArrowUpRight size={14} className="text-white/40" />
             </motion.div>
           </div>
-          <CardDescription className="text-white/50 text-sm leading-relaxed line-clamp-2">
+          <CardDescription className="line-clamp-2 text-sm leading-6 text-white/50">
             {description}
           </CardDescription>
         </CardHeader>
         
-        <CardContent className="flex-grow px-5">
-          <div className="flex flex-wrap gap-1.5">
+        <CardContent className="flex-grow px-6 pb-6 pt-2">
+          <div className="flex flex-wrap gap-2">
             {tags.map((tag, i) => (
               <motion.div
                 key={tag}
@@ -177,7 +186,7 @@ export default function ProjectCard({ title, description, image, tags, liveUrl, 
               >
                 <Badge 
                   variant="secondary" 
-                  className="bg-white/5 text-white/60 border-white/10 text-[10px] uppercase tracking-wider px-3 py-1 rounded-full hover:bg-white/10 transition-colors"
+                  className="rounded-lg border-white/10 bg-white/5 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/60 transition-colors hover:bg-white/10"
                 >
                   {tag}
                 </Badge>
@@ -186,8 +195,8 @@ export default function ProjectCard({ title, description, image, tags, liveUrl, 
           </div>
         </CardContent>
         
-        <CardFooter className="flex items-center justify-between pt-4 pb-5 px-5 border-t border-white/5">
-          <div className="flex gap-3">
+        <CardFooter className="mt-auto flex min-h-16 items-center justify-between border-t border-white/5 bg-white/[0.025] px-6 py-4">
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
             <motion.a 
               href={liveUrl} 
               target="_blank" 
@@ -231,10 +240,10 @@ export default function ProjectCard({ title, description, image, tags, liveUrl, 
 
         {/* iOS Style Haptic Feedback */}
         <motion.div
-          className="absolute inset-0 rounded-2xl pointer-events-none"
+          className="absolute inset-0 rounded-lg pointer-events-none"
           animate={{
             boxShadow: isHovered 
-              ? "inset 0 1px 0 rgba(255,255,255,0.1), 0 20px 60px rgba(0,0,0,0.3)"
+              ? "inset 0 1px 0 rgba(135, 46, 46, 0.1), 0 20px 60px rgba(0,0,0,0.3)"
               : "inset 0 1px 0 rgba(255,255,255,0.05), 0 10px 30px rgba(0,0,0,0.1)",
           }}
           transition={{ duration: 0.3 }}

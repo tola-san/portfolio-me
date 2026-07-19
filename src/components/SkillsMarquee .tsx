@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring } from "motion/react";
 import { useRef, useState, useEffect } from "react";
 import {
   ReactIcon,
@@ -138,7 +138,7 @@ export default function SkillsMarquee() {
     >
       {/* Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-cyan-400/5 blur-3xl rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-cyan-400/5 blur-3xl rounded-lg" />
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent" />
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black to-transparent" />
       </div>
@@ -214,14 +214,14 @@ export default function SkillsMarquee() {
         initial={{ opacity: 0 }}
         animate={{ opacity: isHovering ? 1 : 0 }}
         transition={{ duration: 0.3 }}
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full glass border border-white/10 backdrop-blur-xl"
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-lg glass border border-white/10 backdrop-blur-xl"
       >
         <div className="flex items-center gap-3 text-xs text-white/40">
           <span className="tracking-wider">HOVERING</span>
           <div className="flex gap-1">
-            <div className={`w-1 h-1 rounded-full bg-cyan-400/60 transition-all ${isHovering ? 'scale-150' : ''}`} />
-            <div className={`w-1 h-1 rounded-full bg-cyan-400/40 transition-all ${isHovering ? 'scale-150' : ''}`} />
-            <div className={`w-1 h-1 rounded-full bg-cyan-400/20 transition-all ${isHovering ? 'scale-150' : ''}`} />
+            <div className={`w-1 h-1 rounded-lg bg-cyan-400/60 transition-all ${isHovering ? 'scale-150' : ''}`} />
+            <div className={`w-1 h-1 rounded-lg bg-cyan-400/40 transition-all ${isHovering ? 'scale-150' : ''}`} />
+            <div className={`w-1 h-1 rounded-lg bg-cyan-400/20 transition-all ${isHovering ? 'scale-150' : ''}`} />
           </div>
           <span className="tracking-wider">{isHovering ? 'PAUSED' : 'SCROLLING'}</span>
         </div>
@@ -301,14 +301,14 @@ function MarqueeRow({
               y: -10,
               transition: { duration: 0.2, ease: "easeOut" },
             }}
-            className="group relative flex-shrink-0 flex items-center gap-3 px-6 py-3 rounded-2xl glass backdrop-blur-xl border border-white/5 hover:border-opacity-100 transition-all duration-300 cursor-pointer"
+            className="group relative flex-shrink-0 flex items-center gap-3 px-6 py-3 rounded-lg glass backdrop-blur-xl border border-white/5 hover:border-opacity-100 transition-all duration-300 cursor-pointer"
             style={{
               borderColor: `${skill.color}33`,
             }}
           >
             {/* Glow Effect on Hover */}
             <motion.div
-              className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               style={{
                 background: `radial-gradient(circle at center, ${skill.glowColor}, transparent 70%)`,
                 filter: "blur(20px)",
@@ -337,7 +337,7 @@ function MarqueeRow({
 
             {/* Animated Border Ring */}
             <motion.div
-              className="absolute inset-0 rounded-2xl pointer-events-none"
+              className="absolute inset-0 rounded-lg pointer-events-none"
               animate={{
                 boxShadow: [
                   `inset 0 0 0 0px ${skill.color}`,
@@ -359,4 +359,4 @@ function MarqueeRow({
       </motion.div>
     </div>
   );
-}
+}     
